@@ -44,7 +44,10 @@ class TypeHintChecker(CheckerBase):
         """戻り値の型ヒントをチェックする."""
         returns = node.returns
         if returns is None:
-            issues.append(f"{node.name} 関数の戻り値に型ヒントがありません。({node.lineno} 行目)")
+            if node.name == '__init__':
+                issues.append(f"{node.name} の戻り値は None であるべきです。({node.lineno} 行目)")
+            else:
+                issues.append(f"{node.name} 関数の戻り値に型ヒントがありません。({node.lineno} 行目)")
 
     def _is_python_reserved_arg(self, arg_name: str) -> bool:
         """引数名がPythonの予約語かどうかチェックする."""

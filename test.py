@@ -1,12 +1,11 @@
 
 class MyClass:
 
-    def __init__(self, name):
-        self._a = 0
-        pass
+    def __init__(self, number: int) -> None:
+        self._a = number
 
     @property
-    def a(self):
+    def a(self) -> int:
         """プロパティ."""
         return self._a
 
