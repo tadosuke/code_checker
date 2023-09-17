@@ -2,7 +2,6 @@
 
 import ast
 import os
-import subprocess
 import sys
 
 
@@ -21,7 +20,7 @@ class TypeHintChecker:
 
         if issues:
             for issue in issues:
-                sys.stderr.write(issue)
+                print(issue)
             return False
 
         return True
@@ -39,7 +38,7 @@ class TypeHintChecker:
             if self._is_python_reserved_arg(arg.arg):
                 continue
             if arg.annotation is None:
-                issues.append(f"関数 '{node.name}' の引数 '{arg.arg}' に型ヒントがありません。\n")
+                issues.append(f"関数 '{node.name}' の引数 '{arg.arg}' に型ヒントがありません。")
 
     def _is_python_reserved_arg(self, arg_name: str) -> bool:
         """引数名がPythonの予約語かどうかチェックする."""
@@ -49,22 +48,7 @@ class TypeHintChecker:
         """戻り値の型ヒントをチェックする."""
         returns = node.returns
         if returns is None:
-            issues.append(f"関数 '{node.name}' の戻り値に型ヒントがありません。\n")
-
-
-class FileFinder:
-    """ファイルを探すクラス."""
-
-    @staticmethod
-    def get_files_from_git_diff() -> list[str]:
-        """Gitのdiffからファイル名を取得する."""
-        result = subprocess.run(["git", "diff", "--name-only", "HEAD", "HEAD~"], capture_output=True, text=True)
-        return result.stdout.strip().split("\n")
-
-    @staticmethod
-    def get_files_from_argv() -> list[str]:
-        """コマンドライン引数からファイル名を取得する."""
-        return sys.argv[1:]
+            issues.append(f"関数 '{node.name}' の戻り値に型ヒントがありません。")
 
 
 class FileFilter:
@@ -83,14 +67,14 @@ class FileFilter:
 
 def main() -> None:
     """メイン関数."""
-    target_files = FileFinder.get_files_from_argv()
-    if not target_files:
-        sys.stderr.write('対象ファイルが指定されていません')
+    target_file = sys.argv[1:]
+    if not target_file:
+        print('対象ファイルが指定されていません')
         exit(1)
 
     root_folder = os.getcwd()
     type_checker = TypeHintChecker()
-    for file in target_files:
+    for file in target_file:
         if not FileFilter.is_python_file(file):
             continue
         if FileFilter.is_test_file(file):
