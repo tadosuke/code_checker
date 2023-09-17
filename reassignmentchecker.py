@@ -13,7 +13,7 @@ class ReassignmentChecker(CheckerBase):
     def check(self) -> None:
         """(override)チェックする."""
         print('[ReassignmentChecker]')
-        for node in ast.walk(self.tree):
+        for node in ast.walk(self._tree):
             if isinstance(node, ast.FunctionDef):
                 self._check_in_function(node)
 

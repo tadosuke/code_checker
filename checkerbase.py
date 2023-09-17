@@ -11,7 +11,12 @@ class CheckerBase:
     """
 
     def __init__(self, file_path: str) -> None:
-        self.tree = self._create_ast_tree(file_path)
+        self._tree = self._create_ast_tree(file_path)
+
+    @property
+    def tree(self) -> ast.AST:
+        """抽象構文木."""
+        return self._tree
 
     @abstractmethod
     def check(self) -> None:

@@ -15,7 +15,7 @@ class TypeHintChecker(CheckerBase):
         """(override)チェックする."""
         print('[TypeHintChecker]')
         issues: list[str] = []
-        for node in ast.walk(self.tree):
+        for node in ast.walk(self._tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             self._check_argument_type_hints(node, issues)
@@ -35,13 +35,13 @@ class TypeHintChecker(CheckerBase):
             if self._is_python_reserved_arg(arg.arg):
                 continue
             if arg.annotation is None:
-                issues.append(f"関数 '{node.name}' の引数 '{arg.arg}' に型ヒントがありません。({node.lineno} 行目)")
+                issues.append(f"{node.name} 関数の引数 {arg.arg} に型ヒントがありません。({node.lineno} 行目)")
 
     def _check_return_type_hints(self, node: ast.FunctionDef, issues: list[str]) -> None:
         """戻り値の型ヒントをチェックする."""
         returns = node.returns
         if returns is None:
-            issues.append(f"関数 '{node.name}' の戻り値に型ヒントがありません。({node.lineno} 行目)")
+            issues.append(f"{node.name} 関数の戻り値に型ヒントがありません。({node.lineno} 行目)")
 
     def _is_python_reserved_arg(self, arg_name: str) -> bool:
         """引数名がPythonの予約語かどうかチェックする."""

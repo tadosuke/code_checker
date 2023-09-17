@@ -18,7 +18,7 @@ class DocstringChecker(CheckerBase):
     def check(self) -> None:
         """(override)チェックする."""
         print('[DocstringChecker]')
-        for node in ast.walk(self.tree):
+        for node in ast.walk(self._tree):
             if isinstance(node, ast.ClassDef):
                 self._check_class_docstrings(node)
             elif isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
@@ -38,7 +38,7 @@ class DocstringChecker(CheckerBase):
             if param in ('return', 'self', 'cls'):
                 continue
             if param not in doc_params:
-                print(f"{node.name} クラスの __init__ で {param} がdocstringにありません。({init_method.lineno} 行目)")
+                print(f"{node.name} クラスの __init__ で {param} が docstring にありません。({init_method.lineno} 行目)")
 
     def _check_function_docstrings(self, node: ast.FunctionDef) -> None:
         """関数のdocstringと引数をチェック。"""
@@ -51,7 +51,7 @@ class DocstringChecker(CheckerBase):
         func_params = self._get_function_signature(node)
         for param in func_params.keys():
             if param not in doc_params and param not in ('self', 'cls'):
-                print(f"{node.name} 関数で {param} がdocstringにありません。({node.lineno} 行目)")
+                print(f"{node.name} 関数で {param} が docstring にありません。({node.lineno} 行目)")
 
     def _parse_docstring(self, docstring: str) -> dict[str, str]:
         """docstringからパラメーターを抽出。"""
