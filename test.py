@@ -16,4 +16,5 @@ def func_a(name):
     :param number: 数字
     """
     x = 1
+    y = name
     x = 2
