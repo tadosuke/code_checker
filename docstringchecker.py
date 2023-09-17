@@ -45,11 +45,24 @@ class DocstringChecker(CheckerBase):
     def _check_function_docstrings(self, node: ast.FunctionDef) -> None:
         """関数の docstring と引数をチェック。"""
         docstring = ast.get_docstring(node)
-        if not docstring:
-            if node.name != '__init__':  # init はクラスの docstring に含める
-                print(f"{node.name} 関数に docstring がありません。({node.lineno} 行目)")
+
+        # 非公開関数はチェックしない
+        if node.name.startswith('_'):
             return
 
+        # init はクラスの docstring に含めるので、関数側ではチェックしない
+        if node.name == '__init__':
+            return
+
+        # docstring の存在チェック
+        if not docstring:
+            print(f"{node.name} 関数に docstring がありません。({node.lineno} 行目)")
+            return
+
+        # パラメータの整合性チェック
+        self._check_function_docstring_params(docstring, node)
+
+    def _check_function_docstring_params(self, docstring: str, node: ast.FunctionDef) -> None:
         if self._is_property_node(node):
             # プロパティは型が明白なので、細かいチェックはしない
             return
@@ -57,8 +70,10 @@ class DocstringChecker(CheckerBase):
         doc_params = self._parse_docstring(docstring)
         func_params = self._get_function_signature(node)
         for param in func_params.keys():
-            if param in ('self', 'cls'):
+            if param in ('self', 'cls', '*args', '**kwargs'):
+                # 型ヒントがつけられないのでチェック不要
                 continue
+
             if param not in doc_params:
                 print(f"{node.name} 関数で {param} が docstring にありません。({node.lineno} 行目)")
 

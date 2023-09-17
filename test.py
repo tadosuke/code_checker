@@ -18,3 +18,7 @@ def func_a(name):
     x = 1
     y = name
     x = 2
+
+
+def _func_b(name: str) -> None:
+    pass
