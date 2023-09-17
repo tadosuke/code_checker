@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+"""型ヒントの付け忘れを検出するスクリプト."""
+
 import ast
 import os
 import subprocess
