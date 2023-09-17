@@ -2,31 +2,27 @@
 
 import ast
 import re
-import sys
+
+from checkerbase import CheckerBase
 
 
-class DocstringChecker:
+class DocstringChecker(CheckerBase):
     """Docstring のチェックを行うクラス。
 
-    :param filename: チェックを行いたい Python ファイル名
+    :param file_path: チェック対象のファイルパス
     """
 
-    def __init__(self, filename: str) -> None:
-        self.tree = self._create_ast_tree(filename)
+    def __init__(self, file_path: str) -> None:
+        super().__init__(file_path)
 
     def check(self) -> None:
-        """メインのチェック関数。"""
+        """(override)チェックする."""
         print('[DocstringChecker]')
         for node in ast.walk(self.tree):
             if isinstance(node, ast.ClassDef):
                 self._check_class_docstrings(node)
             elif isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
                 self._check_function_docstrings(node)
-
-    def _create_ast_tree(self, filename: str) -> ast.Module:
-        """ファイルからASTを生成。"""
-        with open(filename, "r", encoding='utf-8') as f:
-            return ast.parse(f.read())
 
     def _check_class_docstrings(self, node: ast.ClassDef) -> None:
         """クラスのdocstringと__init__関数の引数をチェック。"""
@@ -79,13 +75,3 @@ class DocstringChecker:
         if node.returns:
             signature["return"] = "return"
         return signature
-
-
-def main():
-    filename = sys.argv[1]
-    checker = DocstringChecker(filename)
-    checker.check()
-
-
-if __name__ == "__main__":
-    main()

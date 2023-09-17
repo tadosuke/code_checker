@@ -1,17 +1,18 @@
 """型ヒントの付け忘れを検出するスクリプト."""
 
 import ast
-import sys
+
+from checkerbase import CheckerBase
 
 
-class TypeHintChecker:
+class TypeHintChecker(CheckerBase):
     """型ヒントをチェックするクラス."""
 
     def __init__(self, file_path: str) -> None:
-        self.tree = self._create_ast_tree(file_path)
+        super().__init__(file_path)
 
     def check(self) -> bool:
-        """チェックする."""
+        """(override)チェックする."""
         print('[TypeHintChecker]')
         issues: list[str] = []
         for node in ast.walk(self.tree):
@@ -26,12 +27,6 @@ class TypeHintChecker:
             return False
 
         return True
-
-    def _create_ast_tree(self, file_path: str) -> ast.AST:
-        """抽象構文木（AST）を生成する."""
-        with open(file_path, 'r', encoding='utf-8') as f:
-            tree = ast.parse(f.read())
-        return tree
 
     def _check_argument_type_hints(self, node: ast.FunctionDef, issues: list[str]) -> None:
         """引数の型ヒントをチェックする."""
@@ -65,24 +60,3 @@ class FileFilter:
     def is_python_file(file_name: str) -> bool:
         """Pythonファイルかどうかチェックする."""
         return file_name.endswith('.py')
-
-
-def main() -> None:
-    """メイン関数."""
-    if len(sys.argv) != 2:
-        return
-
-    file_path = sys.argv[1]
-    if not file_path:
-        return
-
-    if not FileFilter.is_python_file(file_path):
-        return
-    if FileFilter.is_test_file(file_path):
-        return
-
-    TypeHintChecker(file_path).check()
-
-
-if __name__ == "__main__":
-    main()
