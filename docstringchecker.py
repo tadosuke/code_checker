@@ -58,13 +58,17 @@ class DocstringChecker(CheckerBase):
         lines = docstring.split("\n")
         params = {}
         for line in lines:
+            # 引数
             match = re.search(r":param (\w+):", line)
             if match:
                 param_name = match.group(1)
                 params[param_name] = "param"
+
+            # 戻り値
             match = re.search(r":return:", line)
             if match:
                 params["return"] = "return"
+
         return params
 
     def _get_function_signature(self, node: ast.FunctionDef) -> dict[str, str]:
