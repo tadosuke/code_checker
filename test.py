@@ -2,7 +2,13 @@
 class MyClass:
 
     def __init__(self, name):
+        self._a = 0
         pass
+
+    @property
+    def a(self):
+        """プロパティ."""
+        return self._a
 
 
 def func_a(name):
