@@ -7,7 +7,7 @@ from checkerbase import CheckerBase
 
 
 class DocstringChecker(CheckerBase):
-    """Docstring のチェックを行うクラス。
+    """docstring と関数の引数・戻り値が一致しない箇所を検出するクラス。
 
     :param file_path: チェック対象のファイルパス
     """

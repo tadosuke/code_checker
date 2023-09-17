@@ -6,7 +6,10 @@ from checkerbase import CheckerBase
 
 
 class TypeHintChecker(CheckerBase):
-    """型ヒントをチェックするクラス."""
+    """型ヒントの付け忘れを検出するクラス.
+
+    :param file_path: チェック対象のファイルパス
+    """
 
     def __init__(self, file_path: str) -> None:
         super().__init__(file_path)

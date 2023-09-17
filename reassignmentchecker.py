@@ -6,6 +6,10 @@ from checkerbase import CheckerBase
 
 
 class ReassignmentChecker(CheckerBase):
+    """ローカル変数の再代入を行っている箇所を検出するクラス。
+
+    :param file_path: チェック対象のファイルパス
+    """
 
     def __init__(self, file_path: str) -> None:
         super().__init__(file_path)
