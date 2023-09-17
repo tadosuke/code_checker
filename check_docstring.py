@@ -12,9 +12,18 @@ class DocstringChecker:
     """
 
     def __init__(self, filename: str) -> None:
-        self.tree = self._parse_tree_from_file(filename)
+        self.tree = self._create_ast_tree(filename)
 
-    def _parse_tree_from_file(self, filename: str) -> ast.Module:
+    def check(self) -> None:
+        """メインのチェック関数。"""
+        print('[DocstringChecker]')
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.ClassDef):
+                self._check_class_docstrings(node)
+            elif isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+                self._check_function_docstrings(node)
+
+    def _create_ast_tree(self, filename: str) -> ast.Module:
         """ファイルからASTを生成。"""
         with open(filename, "r", encoding='utf-8') as f:
             return ast.parse(f.read())
@@ -33,7 +42,7 @@ class DocstringChecker:
             if param in ('return', 'self', 'cls'):
                 continue
             if param not in doc_params:
-                print(f"警告: {node.name} クラスの __init__ で {param} がdocstringにありません。({init_method.lineno} 行目)")
+                print(f"{node.name} クラスの __init__ で {param} がdocstringにありません。({init_method.lineno} 行目)")
 
     def _check_function_docstrings(self, node: ast.FunctionDef) -> None:
         """関数のdocstringと引数をチェック。"""
@@ -46,7 +55,7 @@ class DocstringChecker:
         func_params = self._get_function_signature(node)
         for param in func_params.keys():
             if param not in doc_params and param not in ('self', 'cls'):
-                print(f"警告: {node.name} 関数で {param} がdocstringにありません。({node.lineno} 行目)")
+                print(f"{node.name} 関数で {param} がdocstringにありません。({node.lineno} 行目)")
 
     def _parse_docstring(self, docstring: str) -> dict[str, str]:
         """docstringからパラメーターを抽出。"""
@@ -70,14 +79,6 @@ class DocstringChecker:
         if node.returns:
             signature["return"] = "return"
         return signature
-
-    def check(self) -> None:
-        """メインのチェック関数。"""
-        for node in ast.walk(self.tree):
-            if isinstance(node, ast.ClassDef):
-                self._check_class_docstrings(node)
-            elif isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
-                self._check_function_docstrings(node)
 
 
 def main():

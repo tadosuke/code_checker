@@ -1,18 +1,20 @@
 """型ヒントの付け忘れを検出するスクリプト."""
 
 import ast
-import os
 import sys
 
 
 class TypeHintChecker:
     """型ヒントをチェックするクラス."""
 
-    def check_type_hints_in_file(self, file_path: str) -> bool:
-        """Pythonファイル内の型ヒントをチェックする."""
-        tree = self._create_ast_tree(file_path)
+    def __init__(self, file_path: str) -> None:
+        self.tree = self._create_ast_tree(file_path)
+
+    def check(self) -> bool:
+        """チェックする."""
+        print('[TypeHintChecker]')
         issues: list[str] = []
-        for node in ast.walk(tree):
+        for node in ast.walk(self.tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             self._check_argument_type_hints(node, issues)
@@ -38,17 +40,17 @@ class TypeHintChecker:
             if self._is_python_reserved_arg(arg.arg):
                 continue
             if arg.annotation is None:
-                issues.append(f"関数 '{node.name}' の引数 '{arg.arg}' に型ヒントがありません。")
-
-    def _is_python_reserved_arg(self, arg_name: str) -> bool:
-        """引数名がPythonの予約語かどうかチェックする."""
-        return arg_name == 'self' or arg_name == 'cls'
+                issues.append(f"関数 '{node.name}' の引数 '{arg.arg}' に型ヒントがありません。({node.lineno} 行目)")
 
     def _check_return_type_hints(self, node: ast.FunctionDef, issues: list[str]) -> None:
         """戻り値の型ヒントをチェックする."""
         returns = node.returns
         if returns is None:
-            issues.append(f"関数 '{node.name}' の戻り値に型ヒントがありません。")
+            issues.append(f"関数 '{node.name}' の戻り値に型ヒントがありません。({node.lineno} 行目)")
+
+    def _is_python_reserved_arg(self, arg_name: str) -> bool:
+        """引数名がPythonの予約語かどうかチェックする."""
+        return arg_name == 'self' or arg_name == 'cls'
 
 
 class FileFilter:
@@ -67,22 +69,19 @@ class FileFilter:
 
 def main() -> None:
     """メイン関数."""
-    target_file = sys.argv[1:]
-    if not target_file:
-        print('対象ファイルが指定されていません')
-        exit(1)
+    if len(sys.argv) != 2:
+        return
 
-    root_folder = os.getcwd()
-    type_checker = TypeHintChecker()
-    for file in target_file:
-        if not FileFilter.is_python_file(file):
-            continue
-        if FileFilter.is_test_file(file):
-            continue
+    file_path = sys.argv[1]
+    if not file_path:
+        return
 
-        full_file_path = os.path.join(root_folder, file)
-        if not type_checker.check_type_hints_in_file(full_file_path):
-            exit(1)
+    if not FileFilter.is_python_file(file_path):
+        return
+    if FileFilter.is_test_file(file_path):
+        return
+
+    TypeHintChecker(file_path).check()
 
 
 if __name__ == "__main__":
