@@ -55,7 +55,7 @@ class DocstringChecker(CheckerBase, ast.NodeVisitor):
         if not docstring:
             return
 
-        init_params = self._get_function_signature(init_method)
+        init_params = _AstNodeUtil._get_function_signature(init_method)
         doc_params = _parse_docstring(docstring)
         for param in init_params.keys():
             if param in ('return', 'self', 'cls'):
@@ -89,24 +89,29 @@ class DocstringChecker(CheckerBase, ast.NodeVisitor):
             self,
             docstring: str,
             node: tp.Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
-        if self._is_property_node(node):
+        if _AstNodeUtil._is_property_node(node):
             # プロパティは型が明白なので、細かいチェックはしない
             return
 
         doc_params = _parse_docstring(docstring)
-        func_params = self._get_function_signature(node)
+        func_params = _AstNodeUtil._get_function_signature(node)
         for param in func_params.keys():
             if param in ('self', 'cls', '*args', '**kwargs'):
                 # 型ヒントがつけられないのでチェック不要
                 continue
-            if param == 'return' and self._is_return_none(node):
+            if param == 'return' and _AstNodeUtil._is_return_none(node):
                 # 戻り値がない場合はチェック不要
                 continue
 
             if param not in doc_params:
                 print(f"{node.name} 関数で {param} が docstring にありません。({node.lineno} 行目)")
 
-    def _is_return_none(self, node: ast.FunctionDef) -> bool:
+
+class _AstNodeUtil:
+    """ast.Node に関する便利関数."""
+
+    @staticmethod
+    def _is_return_none(node: ast.FunctionDef) -> bool:
         """戻り値が None か"""
         # 型ヒントがついていないと判別できない
         if node.returns is None:
@@ -116,11 +121,13 @@ class DocstringChecker(CheckerBase, ast.NodeVisitor):
 
         return node.returns.value is None
 
-    def _is_property_node(self, node: ast.AST) -> bool:
+    @staticmethod
+    def _is_property_node(node: tp.Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> bool:
         """指定したノードがプロパティか？"""
         return any(isinstance(deco, ast.Name) and deco.id == 'property' for deco in node.decorator_list)
 
-    def _get_function_signature(self, node: ast.FunctionDef) -> dict[str, str]:
+    @staticmethod
+    def _get_function_signature(node: ast.FunctionDef) -> dict[str, str]:
         """関数のシグネチャを取得。"""
         signature = {}
         for arg in node.args.args:
