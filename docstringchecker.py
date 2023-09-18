@@ -2,11 +2,12 @@
 
 import ast
 import re
+import typing as tp
 
 from checkerbase import CheckerBase
 
 
-class DocstringChecker(CheckerBase):
+class DocstringChecker(CheckerBase, ast.NodeVisitor):
     """docstring と関数の引数・戻り値が一致しない箇所を検出するクラス。
 
     :param file_path: チェック対象のファイルパス
@@ -18,19 +19,39 @@ class DocstringChecker(CheckerBase):
     def check(self) -> None:
         """(override)チェックする."""
         print('[DocstringChecker]')
-        for node in ast.walk(self._tree):
-            if isinstance(node, ast.ClassDef):
-                self._check_class_docstrings(node)
-            elif isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
-                self._check_function_docstrings(node)
+        self.visit(self._tree)
 
-    def _check_class_docstrings(self, node: ast.ClassDef) -> None:
-        """クラスの docstring と __init__ 関数の引数をチェック。"""
-        init_method = next((n for n in node.body if isinstance(n, ast.FunctionDef) and n.name == '__init__'), None)
+    def visit_ClassDef(self, class_node: ast.ClassDef) -> None:
+        """クラスノード用のビジター.
+
+        :param class_node: クラスノード
+        """
+        self._check_class_docstrings(class_node)
+        self.generic_visit(class_node)
+
+    def visit_FunctionDef(self, func_node: ast.FunctionDef) -> None:
+        """関数ノード用のビジター.
+
+        :param func_node: 関数ノード
+        """
+        self._check_function_docstrings(func_node)
+        self.generic_visit(func_node)
+
+    def visit_AsyncFunctionDef(self, func_node: ast.AsyncFunctionDef) -> None:
+        """async 関数ノード用のビジター.
+
+        :param func_node: 関数ノード
+        """
+        self._check_function_docstrings(func_node)
+        self.generic_visit(func_node)
+
+    def _check_class_docstrings(self, class_node: ast.ClassDef) -> None:
+        """クラスの docstring と __init__ 関数の引数をチェックする."""
+        init_method = next((n for n in class_node.body if isinstance(n, ast.FunctionDef) and n.name == '__init__'), None)
         if not init_method:
             return
 
-        docstring = ast.get_docstring(node)
+        docstring = ast.get_docstring(class_node)
         if not docstring:
             return
 
@@ -40,9 +61,11 @@ class DocstringChecker(CheckerBase):
             if param in ('return', 'self', 'cls'):
                 continue
             if param not in doc_params:
-                print(f"{node.name} クラスの __init__ で {param} が docstring にありません。({init_method.lineno} 行目)")
+                print(f"{class_node.name} クラスの __init__ で {param} が docstring にありません。({init_method.lineno} 行目)")
 
-    def _check_function_docstrings(self, node: ast.FunctionDef) -> None:
+    def _check_function_docstrings(
+            self,
+            node: tp.Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
         """関数の docstring と引数をチェック。"""
         docstring = ast.get_docstring(node)
 
@@ -62,7 +85,10 @@ class DocstringChecker(CheckerBase):
         # パラメータの整合性チェック
         self._check_function_docstring_params(docstring, node)
 
-    def _check_function_docstring_params(self, docstring: str, node: ast.FunctionDef) -> None:
+    def _check_function_docstring_params(
+            self,
+            docstring: str,
+            node: tp.Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
         if self._is_property_node(node):
             # プロパティは型が明白なので、細かいチェックはしない
             return
