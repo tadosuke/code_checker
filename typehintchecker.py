@@ -1,11 +1,12 @@
 """型ヒントの付け忘れを検出するスクリプト."""
 
 import ast
+import typing as tp
 
 from checkerbase import CheckerBase
 
 
-class TypeHintChecker(CheckerBase):
+class TypeHintChecker(CheckerBase, ast.NodeVisitor):
     """型ヒントの付け忘れを検出するクラス.
 
     :param file_path: チェック対象のファイルパス
@@ -13,41 +14,51 @@ class TypeHintChecker(CheckerBase):
 
     def __init__(self, file_path: str) -> None:
         super().__init__(file_path)
+        self.issues: list[str] = []
 
     def check(self) -> bool:
         """(override)チェックする."""
         print('[TypeHintChecker]')
-        issues: list[str] = []
-        for node in ast.walk(self._tree):
-            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                continue
-            self._check_argument_type_hints(node, issues)
-            self._check_return_type_hints(node, issues)
+        self.visit(self._tree)
 
-        if issues:
-            for issue in issues:
+        if self.issues:
+            for issue in self.issues:
                 print(issue)
             return False
 
         return True
 
-    def _check_argument_type_hints(self, node: ast.FunctionDef, issues: list[str]) -> None:
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self._check_argument_type_hints(node)
+        self._check_return_type_hints(node)
+        self.generic_visit(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        self._check_argument_type_hints(node)
+        self._check_return_type_hints(node)
+        self.generic_visit(node)
+
+    def _check_argument_type_hints(
+            self,
+            node: tp.Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
         """引数の型ヒントをチェックする."""
         args = node.args
         for arg in args.args:
             if _is_python_reserved_arg(arg.arg):
                 continue
             if arg.annotation is None:
-                issues.append(f"{node.name} 関数の引数 {arg.arg} に型ヒントがありません。({node.lineno} 行目)")
+                self.issues.append(f"{node.name} 関数の引数 {arg.arg} に型ヒントがありません。({node.lineno} 行目)")
 
-    def _check_return_type_hints(self, node: ast.FunctionDef, issues: list[str]) -> None:
+    def _check_return_type_hints(
+            self,
+            node: tp.Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None:
         """戻り値の型ヒントをチェックする."""
         returns = node.returns
         if returns is None:
             if node.name == '__init__':
-                issues.append(f"{node.name} の戻り値は None であるべきです。({node.lineno} 行目)")
+                self.issues.append(f"{node.name} の戻り値は None であるべきです。({node.lineno} 行目)")
             else:
-                issues.append(f"{node.name} 関数の戻り値に型ヒントがありません。({node.lineno} 行目)")
+                self.issues.append(f"{node.name} 関数の戻り値に型ヒントがありません。({node.lineno} 行目)")
 
 
 def _is_python_reserved_arg(arg_name: str) -> bool:
