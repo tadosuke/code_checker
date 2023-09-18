@@ -35,7 +35,7 @@ class DocstringChecker(CheckerBase):
             return
 
         init_params = self._get_function_signature(init_method)
-        doc_params = self._parse_docstring(docstring)
+        doc_params = _parse_docstring(docstring)
         for param in init_params.keys():
             if param in ('return', 'self', 'cls'):
                 continue
@@ -67,7 +67,7 @@ class DocstringChecker(CheckerBase):
             # プロパティは型が明白なので、細かいチェックはしない
             return
 
-        doc_params = self._parse_docstring(docstring)
+        doc_params = _parse_docstring(docstring)
         func_params = self._get_function_signature(node)
         for param in func_params.keys():
             if param in ('self', 'cls', '*args', '**kwargs'):
@@ -94,24 +94,6 @@ class DocstringChecker(CheckerBase):
         """指定したノードがプロパティか？"""
         return any(isinstance(deco, ast.Name) and deco.id == 'property' for deco in node.decorator_list)
 
-    def _parse_docstring(self, docstring: str) -> dict[str, str]:
-        """docstringからパラメーターを抽出。"""
-        lines = docstring.split("\n")
-        params = {}
-        for line in lines:
-            # 引数
-            match = re.search(r":param (\w+):", line)
-            if match:
-                param_name = match.group(1)
-                params[param_name] = "param"
-
-            # 戻り値
-            match = re.search(r":return:", line)
-            if match:
-                params["return"] = "return"
-
-        return params
-
     def _get_function_signature(self, node: ast.FunctionDef) -> dict[str, str]:
         """関数のシグネチャを取得。"""
         signature = {}
@@ -120,3 +102,22 @@ class DocstringChecker(CheckerBase):
         if node.returns:
             signature["return"] = "return"
         return signature
+
+
+def _parse_docstring(docstring: str) -> dict[str, str]:
+    """docstring からパラメーターを抽出。"""
+    lines = docstring.split("\n")
+    params = {}
+    for line in lines:
+        # 引数
+        match = re.search(r":param (\w+):", line)
+        if match:
+            param_name = match.group(1)
+            params[param_name] = "param"
+
+        # 戻り値
+        match = re.search(r":return:", line)
+        if match:
+            params["return"] = "return"
+
+    return params
