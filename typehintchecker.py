@@ -35,7 +35,7 @@ class TypeHintChecker(CheckerBase):
         """引数の型ヒントをチェックする."""
         args = node.args
         for arg in args.args:
-            if self._is_python_reserved_arg(arg.arg):
+            if _is_python_reserved_arg(arg.arg):
                 continue
             if arg.annotation is None:
                 issues.append(f"{node.name} 関数の引数 {arg.arg} に型ヒントがありません。({node.lineno} 行目)")
@@ -49,6 +49,7 @@ class TypeHintChecker(CheckerBase):
             else:
                 issues.append(f"{node.name} 関数の戻り値に型ヒントがありません。({node.lineno} 行目)")
 
-    def _is_python_reserved_arg(self, arg_name: str) -> bool:
-        """引数名がPythonの予約語かどうかチェックする."""
-        return arg_name == 'self' or arg_name == 'cls'
+
+def _is_python_reserved_arg(arg_name: str) -> bool:
+    """引数名がPythonの予約語かどうかチェックする."""
+    return arg_name == 'self' or arg_name == 'cls'
