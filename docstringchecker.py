@@ -73,9 +73,22 @@ class DocstringChecker(CheckerBase):
             if param in ('self', 'cls', '*args', '**kwargs'):
                 # 型ヒントがつけられないのでチェック不要
                 continue
+            if param == 'return' and self._is_return_none(node):
+                # 戻り値がない場合はチェック不要
+                continue
 
             if param not in doc_params:
                 print(f"{node.name} 関数で {param} が docstring にありません。({node.lineno} 行目)")
+
+    def _is_return_none(self, node: ast.FunctionDef) -> bool:
+        """戻り値が None か"""
+        # 型ヒントがついていないと判別できない
+        if node.returns is None:
+            return False
+        if not isinstance(node.returns, ast.NameConstant):
+            return False
+
+        return node.returns.value is None
 
     def _is_property_node(self, node: ast.AST) -> bool:
         """指定したノードがプロパティか？"""
