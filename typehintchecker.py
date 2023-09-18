@@ -52,17 +52,3 @@ class TypeHintChecker(CheckerBase):
     def _is_python_reserved_arg(self, arg_name: str) -> bool:
         """引数名がPythonの予約語かどうかチェックする."""
         return arg_name == 'self' or arg_name == 'cls'
-
-
-class FileFilter:
-    """ファイルをフィルタリングするクラス."""
-
-    @staticmethod
-    def is_test_file(file_name: str) -> bool:
-        """テスト用のファイルかどうかチェックする."""
-        return file_name.startswith('test_')
-
-    @staticmethod
-    def is_python_file(file_name: str) -> bool:
-        """Pythonファイルかどうかチェックする."""
-        return file_name.endswith('.py')
