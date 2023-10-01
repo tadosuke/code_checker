@@ -35,3 +35,20 @@ def func_a(name):
 
 def _func_b(name: str) -> None:
     pass
+
+
+def _dict_iteration() -> None:
+    test_dict = {
+        'a': 0,
+        'b': 1,
+        'c': 2,
+    }
+
+    for key, value in test_dict.items():
+        if key == 'a':
+            test_dict.pop(key)
+            continue
+        if key == 'b':
+            del test_dict[key]
+            continue
+
