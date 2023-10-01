@@ -4,6 +4,7 @@ import ast
 import re
 import typing as tp
 
+import sysargutil
 from checkerbase import CheckerBase
 
 
@@ -18,7 +19,7 @@ class DocstringChecker(CheckerBase, ast.NodeVisitor):
 
     def check(self) -> None:
         """(override)チェックする."""
-        print('[DocstringChecker]')
+        print(f'[DocstringChecker] {self.file_path}')
         self.visit(self._tree)
 
     def visit_ClassDef(self, class_node: ast.ClassDef) -> None:
@@ -154,3 +155,12 @@ def _parse_docstring(docstring: str) -> dict[str, str]:
             params["return"] = "return"
 
     return params
+
+
+def main():
+    for file in sysargutil.get_str_list():
+        DocstringChecker(file).check()
+
+
+if __name__ == '__main__':
+    main()
