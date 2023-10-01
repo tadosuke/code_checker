@@ -1,4 +1,7 @@
-"""辞書のイテレート中に禁止されている操作を行っている箇所を検出するモジュール."""
+"""辞書のイテレート中に禁止されている操作を行っている箇所を検出するモジュール.
+
+「RuntimeError: dictionary changed size during」を未然に防ぐことを目的とします。
+"""
 
 import ast
 
@@ -7,6 +10,11 @@ from checkerbase import CheckerBase
 
 
 class DictIterationChecker(CheckerBase, ast.NodeVisitor):
+    """辞書のイテレート中に禁止されている操作を行っている箇所を検出するクラス.
+
+    :param file_path: チェック対象のファイルパス
+    """
+
     def __init__(self, file_path: str) -> None:
         super().__init__(file_path)
 
@@ -26,11 +34,11 @@ class DictIterationChecker(CheckerBase, ast.NodeVisitor):
         for n in ast.walk(node):
             if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute):
                 if n.func.attr == 'pop':
-                    print(f'辞書のイテレート中に pop が呼ばれています。({n.lineno} 行目)')
+                    print(f'イテレート中に pop が呼ばれています。({n.lineno} 行目)')
             elif isinstance(n, ast.Delete):
                 for target in n.targets:
                     if isinstance(target, ast.Subscript):
-                        print(f'辞書のイテレート中に del が呼ばれています。({n.lineno} 行目)')
+                        print(f'イテレート中に del が呼ばれています。({n.lineno} 行目)')
 
 
 def main():
