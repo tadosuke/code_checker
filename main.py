@@ -1,8 +1,8 @@
 """Python コードに対して様々なチェックを行うスクリプト."""
 
 import os.path
-import sys
 
+import sysargutil
 from docstringchecker import DocstringChecker
 from reassignmentchecker import ReassignmentChecker
 from typehintchecker import TypeHintChecker
@@ -17,15 +17,14 @@ _CHECKER_CLASS_LIST = (
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        print('引数の数が不正です.')
-        return
+    for file_path in sysargutil.get_str_list():
+        if not os.path.exists(file_path):
+            print(f'ファイルが見つかりません（{file_path=}）')
+            continue
+        _check(file_path)
 
-    file_path = sys.argv[1]
-    if not os.path.exists(file_path):
-        print(f'ファイルが見つかりません（{file_path=}）')
-        return
 
+def _check(file_path):
     for checker_class in _CHECKER_CLASS_LIST:
         checker_class(file_path).check()
         print('')
