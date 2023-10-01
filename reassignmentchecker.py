@@ -2,6 +2,7 @@
 
 import ast
 
+import sysargutil
 from checkerbase import CheckerBase
 
 
@@ -63,3 +64,12 @@ class ReassignmentChecker(CheckerBase, ast.NodeVisitor):
                 continue
 
             assigned_variables.add(variable_name)
+
+
+def main():
+    for file in sysargutil.get_str_list():
+        ReassignmentChecker(file).check()
+
+
+if __name__ == '__main__':
+    main()

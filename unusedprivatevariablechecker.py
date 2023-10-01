@@ -4,6 +4,7 @@ import ast
 import os
 import sys
 
+import sysargutil
 from checkerbase import CheckerBase
 
 
@@ -41,16 +42,8 @@ class UnusedPrivateVariableChecker(CheckerBase, ast.NodeVisitor):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print('引数の数が不正です.')
-        return
-
-    file_path = sys.argv[1]
-    if not os.path.exists(file_path):
-        print(f'ファイルが見つかりません（{file_path=}）')
-        return
-
-    UnusedPrivateVariableChecker(file_path).check()
+    for file in sysargutil.get_str_list():
+        UnusedPrivateVariableChecker(file).check()
 
 
 if __name__ == '__main__':

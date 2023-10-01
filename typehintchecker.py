@@ -3,6 +3,7 @@
 import ast
 import typing as tp
 
+import sysargutil
 from checkerbase import CheckerBase
 
 
@@ -64,3 +65,12 @@ class TypeHintChecker(CheckerBase, ast.NodeVisitor):
 def _is_python_reserved_arg(arg_name: str) -> bool:
     """引数名がPythonの予約語かどうかチェックする."""
     return arg_name == 'self' or arg_name == 'cls'
+
+
+def main():
+    for file in sysargutil.get_str_list():
+        TypeHintChecker(file).check()
+
+
+if __name__ == '__main__':
+    main()
