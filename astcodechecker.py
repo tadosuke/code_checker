@@ -3,21 +3,18 @@
 from abc import abstractmethod
 import ast
 
+from codecheckerbase import CodeCheckerBase
 
-class AstCodeChecker:
-    """コードチェックの基底クラス.
+
+class AstCodeChecker(CodeCheckerBase):
+    """ast を利用したコードチェックの基底クラス.
 
     :param file_path: チェック対象のファイルパス
     """
 
     def __init__(self, file_path: str) -> None:
-        self._filepath = file_path
+        super().__init__(file_path)
         self._tree = self._create_ast_tree(file_path)
-
-    @property
-    def file_path(self) -> str:
-        """ファイルパス."""
-        return self._filepath
 
     @property
     def tree(self) -> ast.AST:
