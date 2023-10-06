@@ -19,7 +19,7 @@ class DocstringChecker(CheckerBase, ast.NodeVisitor):
 
     def check(self) -> None:
         """(override)チェックする."""
-        print(f'[DocstringChecker] {self.file_path}')
+        print(f'[Docstring の整合チェック] {self.file_path}')
         self.visit(self._tree)
 
     def visit_ClassDef(self, class_node: ast.ClassDef) -> None:

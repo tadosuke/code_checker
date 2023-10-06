@@ -19,7 +19,7 @@ class ReassignmentChecker(CheckerBase, ast.NodeVisitor):
 
     def check(self) -> None:
         """(override)チェックする."""
-        print('[ReassignmentChecker]')
+        print(f'[ローカル変数の再代入チェック] {self.file_path}')
         self.visit(self._tree)
 
     def visit_FunctionDef(

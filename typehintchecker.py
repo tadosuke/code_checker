@@ -19,7 +19,7 @@ class TypeHintChecker(CheckerBase, ast.NodeVisitor):
 
     def check(self) -> bool:
         """(override)チェックする."""
-        print('[TypeHintChecker]')
+        print(f'[型ヒントの付け忘れチェック] {self.file_path}')
         self.visit(self._tree)
 
         if self.issues:

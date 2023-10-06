@@ -19,7 +19,7 @@ class DictIterationChecker(CheckerBase, ast.NodeVisitor):
         super().__init__(file_path)
 
     def check(self) -> None:
-        print(f'[辞書イテレート中の不正な操作] {self.file_path}')
+        print(f'[辞書イテレート中の削除操作] {self.file_path}')
         self.visit(self.tree)
 
     def visit_For(self, node: ast.For) -> None:
