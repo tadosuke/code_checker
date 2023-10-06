@@ -2,12 +2,12 @@
 
 import os.path
 
-import sysargutil
+from dictiterationchecker import DictIterationAstCodeChecker
 from docstringchecker import DocstringAstCodeChecker
 from reassignmentchecker import ReassignmentAstCodeChecker
+import sysargutil
 from typehintchecker import TypeHintAstCodeChecker
-from dictiterationchecker import DictIterationAstCodeChecker
-
+from patternchecker import PatternCodeChecker
 
 # チェック項目
 _CHECKER_CLASS_LIST = (
@@ -15,6 +15,7 @@ _CHECKER_CLASS_LIST = (
     DocstringAstCodeChecker,  # docstring の整合性チェック
     TypeHintAstCodeChecker,  # 型ヒントチェック
     DictIterationAstCodeChecker,  # 辞書イテレート中の不正操作チェック
+    PatternCodeChecker,
 )
 
 

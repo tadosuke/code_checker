@@ -1,7 +1,6 @@
 """Git 関連の便利関数モジュール."""
 
 import subprocess
-import sys
 
 
 def get_changed_file_fullpaths(repository_root_directory: str) -> list[str]:
