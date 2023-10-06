@@ -4,10 +4,10 @@ import ast
 import typing as tp
 
 import sysargutil
-from checkerbase import CheckerBase
+from astcodechecker import AstCodeChecker
 
 
-class TypeHintChecker(CheckerBase, ast.NodeVisitor):
+class TypeHintAstCodeChecker(AstCodeChecker, ast.NodeVisitor):
     """型ヒントの付け忘れを検出するクラス.
 
     :param file_path: チェック対象のファイルパス
@@ -69,7 +69,7 @@ def _is_python_reserved_arg(arg_name: str) -> bool:
 
 def main():
     for file in sysargutil.get_str_list():
-        TypeHintChecker(file).check()
+        TypeHintAstCodeChecker(file).check()
 
 
 if __name__ == '__main__':

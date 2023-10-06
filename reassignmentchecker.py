@@ -3,10 +3,10 @@
 import ast
 
 import sysargutil
-from checkerbase import CheckerBase
+from astcodechecker import AstCodeChecker
 
 
-class ReassignmentChecker(CheckerBase, ast.NodeVisitor):
+class ReassignmentAstCodeChecker(AstCodeChecker, ast.NodeVisitor):
     """ローカル変数の再代入を行っている箇所を検出するクラス。
 
     :param file_path: チェック対象のファイルパス
@@ -68,7 +68,7 @@ class ReassignmentChecker(CheckerBase, ast.NodeVisitor):
 
 def main():
     for file in sysargutil.get_str_list():
-        ReassignmentChecker(file).check()
+        ReassignmentAstCodeChecker(file).check()
 
 
 if __name__ == '__main__':

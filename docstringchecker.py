@@ -5,10 +5,10 @@ import re
 import typing as tp
 
 import sysargutil
-from checkerbase import CheckerBase
+from astcodechecker import AstCodeChecker
 
 
-class DocstringChecker(CheckerBase, ast.NodeVisitor):
+class DocstringAstCodeChecker(AstCodeChecker, ast.NodeVisitor):
     """docstring と関数の引数・戻り値が一致しない箇所を検出するクラス。
 
     :param file_path: チェック対象のファイルパス
@@ -159,7 +159,7 @@ def _parse_docstring(docstring: str) -> dict[str, str]:
 
 def main():
     for file in sysargutil.get_str_list():
-        DocstringChecker(file).check()
+        DocstringAstCodeChecker(file).check()
 
 
 if __name__ == '__main__':

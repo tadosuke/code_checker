@@ -6,10 +6,10 @@
 import ast
 
 import sysargutil
-from checkerbase import CheckerBase
+from astcodechecker import AstCodeChecker
 
 
-class DictIterationChecker(CheckerBase, ast.NodeVisitor):
+class DictIterationAstCodeChecker(AstCodeChecker, ast.NodeVisitor):
     """辞書のイテレート中に禁止されている操作を行っている箇所を検出するクラス.
 
     :param file_path: チェック対象のファイルパス
@@ -43,7 +43,7 @@ class DictIterationChecker(CheckerBase, ast.NodeVisitor):
 
 def main():
     for file in sysargutil.get_str_list():
-        DictIterationChecker(file).check()
+        DictIterationAstCodeChecker(file).check()
 
 
 if __name__ == '__main__':

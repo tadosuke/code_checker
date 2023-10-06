@@ -1,10 +1,10 @@
-"""コードチェッククラスの共通機能を提供するモジュール."""
+"""ast を利用したコードチェックの共通機能を提供するモジュール."""
 
 from abc import abstractmethod
 import ast
 
 
-class CheckerBase:
+class AstCodeChecker:
     """コードチェックの基底クラス.
 
     :param file_path: チェック対象のファイルパス
